@@ -1,0 +1,6 @@
+*.bak
+*.bak2
+*.bak3
+*.sh
+t
+node_modules/
