@@ -82,38 +82,12 @@ body{
     font-size:22px; font-style:italic;
 }
 
-/* =========================================================
-   FOTO — corrigido para nunca esticar
-========================================================= */
-.photo-wrap{
-    position:relative;
-    width:210px;
-    height:210px;
-    margin: 0 auto 28px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:3;
-}
-.photo-border{
-    position:absolute; inset:0; border-radius:50%;
-    border: 2px solid #c9a14a;
-    box-shadow: 0 0 0 5px #fff, 0 0 0 7px rgba(201,161,74,.55), 0 12px 25px rgba(20,80,120,.15);
-}
+
+
+
 
 /* O SEGREDO: aspect-ratio + object-fit + object-position */
-.photo{
-    position:relative;
-    z-index:2;
-    width:178px;
-    height:178px;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    object-position: center 30%; /* foca um pouco mais pra cima (rosto/corpo) */
-    border-radius:50%;
-    border: 4px solid white;
-    display:block;
-}
+
 
 /* LAÇO */
 .bow{
@@ -377,8 +351,8 @@ body{
 @media(max-width:700px){
     .title{ font-size:60px; }
     .card{ padding: 38px 15px 40px; border-radius:25px; }
-    .photo-wrap{ width:195px; height:195px; }
-    .photo{ width:165px; height:165px; }
+    
+    
     .bow{ width:100px; height:88px; right:-34px; top:-14px; }
     .info-box{ min-height:80px; }
     .message{ font-size:21px; }
@@ -388,8 +362,8 @@ body{
 }
 @media(max-width:390px){
     .title{ font-size:53px; }
-    .photo-wrap{ width:180px; height:180px; }
-    .photo{ width:151px; height:151px; }
+    
+    
     .bow{ width:92px; height:82px; right:-30px; top:-12px; }
     .message{ font-size:20px; }
 }
@@ -451,4 +425,114 @@ body{
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+
+
+
+
+/* Garante que o container também seja quadrado */
+
+
+
+
+/* Mobile */
+@media (max-width: 700px){
+    
+    
+}
+
+@media (max-width: 390px){
+    
+    
+}
+
+
+
+
+/* Container circular (mesmo tamanho do círculo dourado) */
+
+
+/* Aro dourado externo */
+
+
+
+
+
+/* =========================================================
+   AJUSTE RESPONSIVO
+========================================================= */
+@media (max-width: 700px){
+    
+    
+}
+
+@media (max-width: 390px){
+    
+    
+}
+
+
+/* =========================================================
+   FOTO — preenchendo ~89% do círculo dourado
+========================================================= */
+.photo-wrap{
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+}
+
+.photo-border{
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid #c9a14a;
+    box-shadow:
+        0 0 0 5px #fff,
+        0 0 0 7px rgba(201,161,74,.55),
+        0 12px 25px rgba(20,80,120,.15);
+    pointer-events: none;
+}
+
+.photo{
+    display: block;
+    position: relative;
+    z-index: 2;
+    width: 195px;
+    height: 195px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center 25%;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 700px){
+    .photo-wrap{
+        width: 205px;
+        height: 205px;
+    }
+    .photo{
+        width: 182px;
+        height: 182px;
+    }
+}
+
+@media (max-width: 390px){
+    .photo-wrap{
+        width: 190px;
+        height: 190px;
+    }
+    .photo{
+        width: 168px;
+        height: 168px;
+    }
 }
