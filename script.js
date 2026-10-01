@@ -1,36 +1,20 @@
 /* =====================================================
-   SCRIPT PRINCIPAL COM DIAGNÓSTICO VISÍVEL
+   SCRIPT PRINCIPAL — CONVITE 15 ANOS DA MARIA
 ===================================================== */
 console.log('🔵 script.js carregado');
 
 let supabaseClient = null;
-let errosConfig = [];
 
-/* ---------- INICIALIZAÇÃO COM DIAGNÓSTICO ---------- */
+/* ==================== SUPABASE ==================== */
 function initSupabase() {
     console.log('🔵 Iniciando Supabase...');
 
     if (typeof window.CONFIG === 'undefined') {
-        errosConfig.push('config.js não foi carregado ou não definiu window.CONFIG');
-        console.error('❌ window.CONFIG undefined');
+        console.error('❌ window.CONFIG indefinido (config.js não carregou)');
         return false;
     }
-
     if (typeof window.supabase === 'undefined') {
-        errosConfig.push('Biblioteca Supabase (@supabase/supabase-js) não carregou');
-        console.error('❌ window.supabase undefined');
-        return false;
-    }
-
-    if (!window.CONFIG.SUPABASE_URL || window.CONFIG.SUPABASE_URL.indexOf('supabase.co') === -1) {
-        errosConfig.push('SUPABASE_URL inválida: ' + window.CONFIG.SUPABASE_URL);
-        console.error('❌ URL inválida:', window.CONFIG.SUPABASE_URL);
-        return false;
-    }
-
-    if (!window.CONFIG.SUPABASE_ANON_KEY || window.CONFIG.SUPABASE_ANON_KEY.indexOf('eyJ') !== 0) {
-        errosConfig.push('SUPABASE_ANON_KEY inválida (deve começar com "eyJ")');
-        console.error('❌ KEY inválida (não começa com eyJ)');
+        console.error('❌ Biblioteca Supabase não carregada');
         return false;
     }
 
@@ -39,21 +23,93 @@ function initSupabase() {
             window.CONFIG.SUPABASE_URL,
             window.CONFIG.SUPABASE_ANON_KEY
         );
-        console.log('✅ Supabase criado com sucesso!');
+        console.log('✅ Supabase OK! URL:', window.CONFIG.SUPABASE_URL);
         return true;
     } catch (e) {
-        errosConfig.push('Erro ao criar cliente: ' + e.message);
-        console.error('❌ Erro createClient:', e);
+        console.error('❌ Erro ao criar cliente:', e);
         return false;
     }
 }
 
 initSupabase();
 
-/* ---------- QUANDO O DOM CARREGAR ---------- */
+/* ==================== QUANDO O DOM CARREGAR ==================== */
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🔵 DOM pronto');
 
+    /* ==================== MÚSICA ==================== */
+    const music = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    const iconOn = document.querySelector('.music-on');
+    const iconOff = document.querySelector('.music-off');
+
+    let musicaTocando = false;
+
+    function tentarTocarMusica() {
+        if (!music) return;
+        music.volume = 0.5;
+        const playPromise = music.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(function () {
+                    musicaTocando = true;
+                    if (musicBtn) musicBtn.classList.add('playing');
+                    if (iconOn) iconOn.style.display = 'block';
+                    if (iconOff) iconOff.style.display = 'none';
+                    console.log('🎵 Música tocando');
+                })
+                .catch(function (err) {
+                    console.log('🔇 Autoplay bloqueado. Clique no botão de música.');
+                    musicaTocando = false;
+                    if (musicBtn) musicBtn.classList.remove('playing');
+                    if (iconOn) iconOn.style.display = 'none';
+                    if (iconOff) iconOff.style.display = 'block';
+                });
+        }
+    }
+
+    /* Tenta tocar automaticamente ao carregar */
+    setTimeout(tentarTocarMusica, 300);
+
+    /* Tenta tocar no primeiro clique/toque em qualquer lugar */
+    function tocarNoPrimeiroToque() {
+        if (musicaTocando) return;
+        tentarTocarMusica();
+        document.removeEventListener('click', tocarNoPrimeiroToque);
+        document.removeEventListener('touchstart', tocarNoPrimeiroToque);
+    }
+    document.addEventListener('click', tocarNoPrimeiroToque, { once: true });
+    document.addEventListener('touchstart', tocarNoPrimeiroToque, { once: true });
+
+    /* Botão de música — liga/desliga */
+    if (musicBtn) {
+        musicBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (!music) return;
+
+            if (musicaTocando) {
+                music.pause();
+                musicaTocando = false;
+                musicBtn.classList.remove('playing');
+                if (iconOn) iconOn.style.display = 'none';
+                if (iconOff) iconOff.style.display = 'block';
+                console.log('⏸️ Música pausada');
+            } else {
+                music.volume = 0.5;
+                music.play().then(function () {
+                    musicaTocando = true;
+                    musicBtn.classList.add('playing');
+                    if (iconOn) iconOn.style.display = 'block';
+                    if (iconOff) iconOff.style.display = 'none';
+                    console.log('▶️ Música tocando');
+                }).catch(function (err) {
+                    console.error('❌ Erro ao tocar:', err);
+                });
+            }
+        });
+    }
+
+    /* ==================== MODAL CONFIRMAR ==================== */
     const modal = document.getElementById('confirmModal');
     const btnOpen = document.getElementById('btnOpenConfirm');
     const btnClose = document.getElementById('btnCloseConfirm');
@@ -65,28 +121,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const inpAcomp = document.getElementById('inputAcompanhantes');
     const inpMsg = document.getElementById('inputMensagem');
 
-    console.log('🔵 Modal:', !!modal, '| Botão:', !!btnOpen);
-
-    /* ---------- ABRIR MODAL ---------- */
     function abrirModal() {
-        if (!modal) {
-            alert('ERRO: Modal #confirmModal não encontrado no HTML!');
-            return;
-        }
+        if (!modal) return;
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
-        console.log('🟢 Modal aberto');
-
-        /* SE HOUVER ERRO DE CONFIG, MOSTRA NA HORA */
-        if (errosConfig.length > 0) {
-            setTimeout(function () {
-                if (msg) {
-                    msg.textContent = '⚠️ ' + errosConfig[0];
-                    msg.className = 'form-message error';
-                }
-            }, 200);
-        }
-
         setTimeout(function () { if (inpNome) inpNome.focus(); }, 400);
     }
 
@@ -106,20 +144,18 @@ document.addEventListener('DOMContentLoaded', function () {
             e.stopPropagation();
             abrirModal();
         });
-        console.log('✅ Botão OK');
-    } else {
-        console.error('❌ btnOpenConfirm NÃO ENCONTRADO!');
     }
-
     if (btnClose) btnClose.addEventListener('click', fecharModal);
-    if (modal) modal.addEventListener('click', function (e) {
-        if (e.target === modal) fecharModal();
-    });
+    if (modal) {
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) fecharModal();
+        });
+    }
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') fecharModal();
     });
 
-    /* ---------- MÁSCARA ---------- */
+    /* ==================== MÁSCARA TELEFONE ==================== */
     if (inpTel) {
         inpTel.addEventListener('input', function (e) {
             let v = e.target.value.replace(/\D/g, '');
@@ -138,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
         msg.className = 'form-message ' + tipo;
     }
 
-    /* ---------- ENVIO ---------- */
+    /* ==================== ENVIO ==================== */
     if (form) {
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -151,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('📤 Enviando:', { nome, telefone, acompanhantes, mensagem });
 
-            /* VALIDAÇÕES */
             if (nome.length < 2) {
                 mostrarMsg('Por favor, digite seu nome completo.', 'error');
                 if (inpNome) inpNome.focus();
@@ -162,13 +197,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (inpTel) inpTel.focus();
                 return;
             }
-
-            /* SE SUPABASE FALHOU, MOSTRA O ERRO EXATO */
             if (!supabaseClient) {
-                let detalhe = errosConfig.length > 0 ? errosConfig[0] : 'Cliente Supabase não inicializado';
-                mostrarMsg('⚠️ ' + detalhe, 'error');
-                console.error('❌ Erros de config:', errosConfig);
-                alert('ERRO DE CONFIGURAÇÃO:\n\n' + detalhe + '\n\nVerifique o console (F12) para mais detalhes.');
+                mostrarMsg('Erro: Supabase não configurado. Verifique config.js', 'error');
+                console.error('❌ supabaseClient é null');
                 return;
             }
 
@@ -179,6 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarMsg('Enviando confirmação...', 'loading');
 
             try {
+                console.log('📡 Chamando RPC confirmar_presenca...');
                 const { data, error } = await supabaseClient.rpc('confirmar_presenca', {
                     p_nome: nome,
                     p_telefone: telefone,
@@ -202,8 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 let m = 'Erro: ';
                 if (err && err.message) m += err.message;
                 else if (err && err.error_description) m += err.error_description;
-                else if (err && err.details) m += err.details;
-                else m += 'Abra o console (F12).';
+                else m += 'Verifique o console (F12).';
                 mostrarMsg(m, 'error');
             } finally {
                 if (btnSubmit) {
@@ -212,8 +243,5 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
-        console.log('✅ Form OK');
-    } else {
-        console.error('❌ confirmForm NÃO ENCONTRADO!');
     }
 });
